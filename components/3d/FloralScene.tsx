@@ -1,38 +1,28 @@
 "use client";
 
 import { Suspense, useRef } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { 
-  Environment, 
-  Float, 
-  Text3D, 
-  Center,
-  Sparkles,
-  Preload
-} from "@react-three/drei";
-import { 
-  EffectComposer, 
-  Bloom, 
-  DepthOfField,
-  Vignette,
-  GodRays
-} from "@react-three/postprocessing";
+import { Canvas } from "@react-three/fiber";
+import { Float, Preload } from "@react-three/drei";
 import * as THREE from "three";
 import FloatingPetals from "./FloatingPetals";
-import ProceduralFlower, { FlowerCluster } from "./ProceduralFlower";
 
-// Main 3D Scene for Hero Section
+// Lightweight 3D Hero Scene
+// Performance optimized: no post-processing, minimal particles
+
 export default function FloralScene() {
   return (
     <div className="absolute inset-0 z-0">
       <Canvas
-        camera={{ position: [0, 0, 8], fov: 45 }}
-        dpr={[1, 2]}
+        camera={{ position: [0, 0, 6], fov: 50 }}
+        dpr={[1, 1.5]} // Limit pixel ratio for performance
         gl={{ 
           antialias: true,
           alpha: true,
-          powerPreference: "high-performance"
+          powerPreference: "low-power", // Low GPU usage
+          stencil: false,
+          depth: true,
         }}
+        style={{ background: "transparent" }}
       >
         <Suspense fallback={null}>
           <SceneContent />
@@ -45,144 +35,106 @@ export default function FloralScene() {
 function SceneContent() {
   const scrollY = useRef(0);
   
-  // Update scroll position
   if (typeof window !== "undefined") {
     window.addEventListener("scroll", () => {
       scrollY.current = window.scrollY;
-    });
+    }, { passive: true });
   }
 
   return (
     <>
-      {/* Lighting */}
-      <ambientLight intensity={0.5} color="#FFF5F0" />
+      {/* Soft ambient lighting */}
+      <ambientLight intensity={0.6} color="#FFF8F5" />
       <directionalLight 
-        position={[5, 5, 5]} 
-        intensity={1} 
-        color="#FFF8F0"
-        castShadow
+        position={[3, 3, 3]} 
+        intensity={0.8} 
+        color="#FFF5EE"
       />
-      <pointLight position={[-5, 5, -5]} intensity={0.5} color="#F8C7D9" />
-      <spotLight 
-        position={[0, 10, 0]} 
-        angle={0.3} 
-        penumbra={1} 
-        intensity={0.5}
-        color="#D4AF77"
-      />
+      <pointLight position={[-3, 2, -2]} intensity={0.4} color="#F8C7D9" />
+      <pointLight position={[3, -2, -1]} intensity={0.3} color="#D4AF77" />
       
-      {/* Fog for dreamy effect */}
-      <fog attach="fog" args={["#FAF6F0", 5, 25]} />
+      {/* Subtle fog for depth */}
+      <fog attach="fog" args={["#FAF6F0", 4, 18]} />
 
-      {/* Background gradient sphere */}
-      <BackgroundSphere />
+      {/* Floating petals - lightweight */}
+      <FloatingPetals count={30} scrollY={scrollY.current} />
       
-      {/* Floating petals */}
-      <FloatingPetals count={150} scrollY={scrollY.current} />
+      {/* Central decorative flowers */}
+      <CentralFlowers />
       
-      {/* Central floral arrangement */}
-      <CentralFloralArch />
-      
-      {/* Floating flower clusters */}
-      <FlowerCluster count={8} spread={5} />
-      
-      {/* Sparkles for magical effect */}
-      <Sparkles 
-        count={50} 
-        scale={10} 
-        size={2} 
-        speed={0.3}
-        color="#D4AF77"
-        opacity={0.5}
-      />
-      
-      {/* Post-processing effects */}
-      <EffectComposer>
-        <Bloom 
-          intensity={0.5} 
-          luminanceThreshold={0.8} 
-          luminanceSmoothing={0.9}
-        />
-        <DepthOfField 
-          focusDistance={0.01} 
-          focalLength={0.05} 
-          bokehScale={2}
-        />
-        <Vignette eskil={false} offset={0.1} darkness={0.5} />
-      </EffectComposer>
-      
+      {/* Preload assets */}
       <Preload all />
     </>
   );
 }
 
-// Background gradient sphere
-function BackgroundSphere() {
-  const meshRef = useRef<THREE.Mesh>(null);
-  
-  useFrame((state) => {
-    if (!meshRef.current) return;
-    meshRef.current.rotation.y = state.clock.getElapsedTime() * 0.02;
-  });
+// Simple procedural flower cluster - much lighter than before
+function CentralFlowers() {
+  const flowers = [
+    { position: [0, 0, -1] as [number,number,number], scale: 0.8, color: "#F8C7D9" },
+    { position: [-1.2, 0.5, -1.5] as [number,number,number], scale: 0.5, color: "#FFB6C1" },
+    { position: [1.3, -0.3, -1.2] as [number,number,number], scale: 0.6, color: "#E8B4BC" },
+    { position: [-0.5, 1, -2] as [number,number,number], scale: 0.4, color: "#D4AF77" },
+    { position: [0.8, 0.8, -1.8] as [number,number,number], scale: 0.45, color: "#F8C7D9" },
+  ];
 
   return (
-    <mesh ref={meshRef} scale={20}>
-      <sphereGeometry args={[1, 32, 32]} />
-      <meshBasicMaterial 
-        color="#FAF6F0" 
-        side={THREE.BackSide}
-      />
-    </mesh>
-  );
-}
-
-// Central floral arch for hero section
-function CentralFloralArch() {
-  const groupRef = useRef<THREE.Group>(null);
-  
-  useFrame((state) => {
-    if (!groupRef.current) return;
-    // Gentle floating animation
-    groupRef.current.position.y = Math.sin(state.clock.getElapsedTime() * 0.5) * 0.1;
-  });
-
-  // Create arch positions
-  const archFlowers = [];
-  const archRadius = 2.5;
-  const flowerCount = 12;
-  
-  for (let i = 0; i < flowerCount; i++) {
-    const angle = (i / flowerCount) * Math.PI + Math.PI; // Half arch
-    const x = Math.cos(angle) * archRadius;
-    const y = Math.sin(angle) * archRadius + 1;
-    const z = -1 + Math.sin(angle) * 0.5;
-    
-    const colors = ["#E85D9E", "#F8C7D9", "#FFB6C1", "#D4AF77"];
-    const color = colors[i % colors.length];
-    
-    archFlowers.push(
-      <ProceduralFlower
-        key={i}
-        type={i % 2 === 0 ? "rose" : "peony"}
-        position={[x, y, z]}
-        scale={0.6}
-        color={color}
-        bloomSpeed={0.3}
-      />
-    );
-  }
-
-  return (
-    <group ref={groupRef}>
-      {archFlowers}
-      
-      {/* Additional center bouquet */}
-      <Center position={[0, -0.5, 0]}>
-        <FlowerCluster count={6} spread={1.5} />
-      </Center>
+    <group>
+      {flowers.map((flower, i) => (
+        <Float
+          key={i}
+          speed={1.2}
+          rotationIntensity={0.15}
+          floatIntensity={0.3}
+          position={flower.position}
+        >
+          <SimpleFlower 
+            scale={flower.scale} 
+            color={flower.color}
+            rotationY={i * 1.2}
+          />
+        </Float>
+      ))}
     </group>
   );
 }
 
-// Export components for use in other sections
-export { FloatingPetals, ProceduralFlower, FlowerCluster };
+// Simple stylized flower - lightweight geometry
+function SimpleFlower({ scale = 1, color = "#F8C7D9", rotationY = 0 }: { scale?: number; color?: string; rotationY?: number }) {
+  return (
+    <group rotation={[0.2, rotationY, 0]} scale={scale}>
+      {/* Petals - simple spheres arranged in circle */}
+      {[0, 60, 120, 180, 240, 300].map((angle, i) => (
+        <mesh
+          key={i}
+          position={[
+            Math.cos((angle * Math.PI) / 180) * 0.4,
+            Math.sin((angle * Math.PI) / 180) * 0.4,
+            0,
+          ]}
+        >
+          <sphereGeometry args={[0.2, 8, 8]} />
+          <meshStandardMaterial 
+            color={color} 
+            roughness={0.6}
+            metalness={0.1}
+            transparent
+            opacity={0.9}
+          />
+        </mesh>
+      ))}
+      {/* Center */}
+      <mesh>
+        <sphereGeometry args={[0.15, 12, 12]} />
+        <meshStandardMaterial 
+          color="#D4AF77" 
+          roughness={0.4}
+          metalness={0.2}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+// Export lightweight components
+export { FloatingPetals };

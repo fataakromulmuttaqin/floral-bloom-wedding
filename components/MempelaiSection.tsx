@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Heart } from "lucide-react";
+import { RoseSVG } from "./ui/FlowerDecorations";
 import { weddingData } from "@/lib/constants";
 
 export default function MempelaiSection() {
@@ -14,9 +15,29 @@ export default function MempelaiSection() {
   return (
     <section 
       ref={sectionRef}
-      className="relative py-20 md:py-32 bg-white"
+      className="relative py-24 md:py-32 bg-gradient-to-b from-white to-cream/50 overflow-hidden"
     >
-      <div className="max-w-4xl mx-auto px-6">
+      {/* Background decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 0.05 }}
+          transition={{ duration: 2 }}
+          className="absolute top-1/4 -left-20"
+        >
+          <RoseSVG size={250} />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 0.04 }}
+          transition={{ duration: 2, delay: 0.3 }}
+          className="absolute bottom-1/4 -right-20"
+        >
+          <RoseSVG size={200} />
+        </motion.div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-6 relative z-10">
         {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -24,113 +45,173 @@ export default function MempelaiSection() {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <span className="text-gold text-sm uppercase tracking-widest">Mempelai</span>
-          <h2 className="font-serif text-4xl md:text-5xl text-rolex-dark mt-2">
-           Kedua Mempelai
+          <motion.span 
+            className="text-gold text-sm uppercase tracking-[0.3em] font-light inline-block mb-3"
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ delay: 0.2 }}
+          >
+            Mempelai
+          </motion.span>
+          <h2 className="font-serif text-4xl md:text-5xl text-rolex-dark">
+            Kedua Mempelai
           </h2>
-          <div className="flex items-center justify-center gap-4 mt-4">
-            <span className="w-16 h-0.5 bg-gradient-to-r from-transparent to-gold" />
-            <Heart className="w-5 h-5 text-vibrant-pink fill-vibrant-pink" />
-            <span className="w-16 h-0.5 bg-gradient-to-l from-transparent to-gold" />
-          </div>
+          <motion.div 
+            className="flex items-center justify-center gap-3 mt-4"
+            initial={{ scaleX: 0 }}
+            animate={isInView ? { scaleX: 1 } : {}}
+            transition={{ delay: 0.4, duration: 0.8 }}
+          >
+            <span className="w-12 h-[1px] bg-gradient-to-r from-transparent to-gold" />
+            <Heart className="w-4 h-4 text-vibrant-pink fill-vibrant-pink" />
+            <span className="w-12 h-[1px] bg-gradient-to-l from-transparent to-gold" />
+          </motion.div>
         </motion.div>
 
-        {/* Couple cards */}
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12">
-          {/* Female card */}
+        {/* Couple cards - elegant side by side */}
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12 max-w-4xl mx-auto">
+          {/* Bride card */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            initial={{ opacity: 0, x: -40, y: 20 }}
+            animate={isInView ? { opacity: 1, x: 0, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative group"
+            className="relative"
           >
-            <div className="relative bg-gradient-to-br from-blush/20 to-light-pink/20 rounded-3xl p-8 backdrop-blur-sm border border-blush/30 shadow-xl overflow-hidden">
-              {/* Decorative corner */}
-              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-vibrant-pink/20 to-transparent rounded-bl-full" />
+            <div className="relative bg-gradient-to-br from-white to-blush/20 rounded-3xl p-8 shadow-xl border border-blush/30 overflow-hidden">
+              {/* Top decoration */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-vibrant-pink/10 to-transparent rounded-bl-full" />
               
-              <div className="relative z-10 text-center">
-                {/* Avatar placeholder */}
-                <div className="relative w-32 h-32 mx-auto mb-6">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blush to-vibrant-pink opacity-20" />
-                  <div className="absolute inset-4 rounded-full bg-gradient-to-br from-blush to-light-pink flex items-center justify-center">
-                    <span className="text-5xl">👰</span>
-                  </div>
-                  {/* Ring decoration */}
-                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-rolex text-cream text-xs rounded-full">
-                    Putri
-                  </div>
+              {/* Avatar */}
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={isInView ? { scale: 1 } : {}}
+                transition={{ delay: 0.5, type: "spring" }}
+                className="relative w-28 h-28 mx-auto mb-6"
+              >
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blush to-vibrant-pink/30" />
+                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-blush/80 to-light-pink flex items-center justify-center shadow-inner">
+                  <span className="text-5xl">👰</span>
                 </div>
+                {/* Ring */}
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-vibrant-pink to-blush text-white text-xs font-sans rounded-full shadow-lg">
+                  Putri
+                </div>
+              </motion.div>
 
-                <h3 className="font-serif text-2xl md:text-3xl text-rolex-dark mb-2">
+              <div className="text-center relative z-10">
+                <motion.h3 
+                  className="font-serif text-2xl md:text-3xl text-rolex-dark mb-1"
+                  initial={{ opacity: 0 }}
+                  animate={isInView ? { opacity: 1 } : {}}
+                  transition={{ delay: 0.6 }}
+                >
                   {female.fullName}
-                </h3>
+                </motion.h3>
                 
-                <p className="text-vibrant-pink font-sans mb-4">{female.position}</p>
+                <motion.p 
+                  className="text-vibrant-pink/80 font-sans text-sm mb-4"
+                  initial={{ opacity: 0 }}
+                  animate={isInView ? { opacity: 1 } : {}}
+                  transition={{ delay: 0.7 }}
+                >
+                  {female.position}
+                </motion.p>
 
-                <div className="space-y-2 text-rolex/80 font-sans text-sm mb-6">
+                <motion.div 
+                  className="space-y-1 text-rolex/70 font-sans text-sm mb-6"
+                  initial={{ opacity: 0 }}
+                  animate={isInView ? { opacity: 1 } : {}}
+                  transition={{ delay: 0.8 }}
+                >
                   <p>{female.father}</p>
-                  <p>&</p>
+                  <p className="text-blush/60">&</p>
                   <p>{female.mother}</p>
-                </div>
+                </motion.div>
 
-                <a
+                <motion.a
                   href={female.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-vibrant-pink to-blush text-white rounded-full text-sm font-sans hover:shadow-lg transition-all duration-300"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-vibrant-pink to-blush text-white rounded-full text-sm font-sans shadow-md hover:shadow-lg transition-shadow"
                 >
-                  <span className="text-sm">📷</span>
+                  <span>📷</span>
                   <span>@{female.nickName.toLowerCase()}</span>
-                </a>
+                </motion.a>
               </div>
             </div>
           </motion.div>
 
-          {/* Male card */}
+          {/* Groom card */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            initial={{ opacity: 0, x: 40, y: 20 }}
+            animate={isInView ? { opacity: 1, x: 0, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="relative group"
+            className="relative"
           >
-            <div className="relative bg-gradient-to-br from-rolex/10 to-blush/10 rounded-3xl p-8 backdrop-blur-sm border border-rolex/20 shadow-xl overflow-hidden">
-              {/* Decorative corner */}
-              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-rolex/20 to-transparent rounded-bl-full" />
+            <div className="relative bg-gradient-to-br from-white to-rolex/5 rounded-3xl p-8 shadow-xl border border-rolex/20 overflow-hidden">
+              {/* Top decoration */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-rolex/10 to-transparent rounded-bl-full" />
               
-              <div className="relative z-10 text-center">
-                {/* Avatar placeholder */}
-                <div className="relative w-32 h-32 mx-auto mb-6">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-rolex to-rolex-dark opacity-20" />
-                  <div className="absolute inset-4 rounded-full bg-gradient-to-br from-rolex/30 to-rolex flex items-center justify-center">
-                    <span className="text-5xl">🤵</span>
-                  </div>
-                  {/* Ring decoration */}
-                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-vibrant-pink text-cream text-xs rounded-full">
-                    Putra
-                  </div>
+              {/* Avatar */}
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={isInView ? { scale: 1 } : {}}
+                transition={{ delay: 0.7, type: "spring" }}
+                className="relative w-28 h-28 mx-auto mb-6"
+              >
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-rolex/20 to-rolex-dark/30" />
+                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-rolex/30 to-rolex flex items-center justify-center shadow-inner">
+                  <span className="text-5xl">🤵</span>
                 </div>
+                {/* Ring */}
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-rolex to-rolex-dark text-cream text-xs font-sans rounded-full shadow-lg">
+                  Putra
+                </div>
+              </motion.div>
 
-                <h3 className="font-serif text-2xl md:text-3xl text-rolex-dark mb-2">
+              <div className="text-center relative z-10">
+                <motion.h3 
+                  className="font-serif text-2xl md:text-3xl text-rolex-dark mb-1"
+                  initial={{ opacity: 0 }}
+                  animate={isInView ? { opacity: 1 } : {}}
+                  transition={{ delay: 0.8 }}
+                >
                   {male.fullName}
-                </h3>
+                </motion.h3>
                 
-                <p className="text-vibrant-pink font-sans mb-4">{male.position}</p>
+                <motion.p 
+                  className="text-vibrant-pink/80 font-sans text-sm mb-4"
+                  initial={{ opacity: 0 }}
+                  animate={isInView ? { opacity: 1 } : {}}
+                  transition={{ delay: 0.9 }}
+                >
+                  {male.position}
+                </motion.p>
 
-                <div className="space-y-2 text-rolex/80 font-sans text-sm mb-6">
+                <motion.div 
+                  className="space-y-1 text-rolex/70 font-sans text-sm mb-6"
+                  initial={{ opacity: 0 }}
+                  animate={isInView ? { opacity: 1 } : {}}
+                  transition={{ delay: 1 }}
+                >
                   <p>{male.father}</p>
-                  <p>&</p>
+                  <p className="text-rolex/30">&</p>
                   <p>{male.mother}</p>
-                </div>
+                </motion.div>
 
-                <a
+                <motion.a
                   href={male.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-rolex to-rolex-dark text-cream rounded-full text-sm font-sans hover:shadow-lg transition-all duration-300"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-rolex to-rolex-dark text-cream rounded-full text-sm font-sans shadow-md hover:shadow-lg transition-shadow"
                 >
-                  <span className="text-sm">📷</span>
+                  <span>📷</span>
                   <span>@{male.nickName.toLowerCase()}</span>
-                </a>
+                </motion.a>
               </div>
             </div>
           </motion.div>
@@ -140,12 +221,16 @@ export default function MempelaiSection() {
         <motion.div
           initial={{ opacity: 0, scale: 0 }}
           animate={isInView ? { opacity: 1, scale: 1 } : {}}
-          transition={{ duration: 0.6, delay: 0.8 }}
+          transition={{ duration: 0.6, delay: 1 }}
           className="flex justify-center mt-8"
         >
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-vibrant-pink to-rolex flex items-center justify-center shadow-lg">
+          <motion.div 
+            className="w-14 h-14 rounded-full bg-gradient-to-br from-vibrant-pink to-rolex flex items-center justify-center shadow-lg"
+            animate={{ rotate: [0, 5, -5, 0] }}
+            transition={{ duration: 4, repeat: Infinity }}
+          >
             <span className="text-2xl">💍</span>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>

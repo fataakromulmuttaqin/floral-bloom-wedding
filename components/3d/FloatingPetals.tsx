@@ -4,131 +4,139 @@ import { useRef, useMemo } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
-// Floating flower petals particle system
-// Creates soft, romantic petal effects that follow mouse and scroll
+// Ultra-lightweight floating petals - only 30 particles
+// Optimized for mobile performance
 
 interface FloatingPetalsProps {
   count?: number;
-  color?: string;
   scrollY?: number;
 }
 
-// Create custom petal geometry
-function createPetalGeometry(): THREE.BufferGeometry {
+function createPetalShape(): THREE.BufferGeometry {
   const shape = new THREE.Shape();
+  // Elegant petal shape
   shape.moveTo(0, 0);
-  shape.bezierCurveTo(0.05, 0.05, 0.05, 0.1, 0, 0.15);
-  shape.bezierCurveTo(-0.05, 0.1, -0.05, 0.05, 0, 0);
+  shape.bezierCurveTo(0.08, 0.02, 0.12, 0.08, 0.08, 0.15);
+  shape.bezierCurveTo(0.04, 0.2, -0.04, 0.2, -0.08, 0.15);
+  shape.bezierCurveTo(-0.12, 0.08, -0.08, 0.02, 0, 0);
   
   const geometry = new THREE.ExtrudeGeometry(shape, {
-    depth: 0.01,
+    depth: 0.008,
     bevelEnabled: true,
-    bevelThickness: 0.005,
-    bevelSize: 0.005,
+    bevelThickness: 0.003,
+    bevelSize: 0.003,
     bevelSegments: 2,
   });
   
-  geometry.rotateX(Math.PI / 2);
-  geometry.translate(-0.025, 0, -0.075);
+  geometry.rotateX(-Math.PI / 3);
+  geometry.translate(0, 0, -0.1);
   return geometry;
 }
 
-export default function FloatingPetals({ 
-  count = 100, 
-  color = "#F8C7D9",
-  scrollY = 0 
-}: FloatingPetalsProps) {
+export default function FloatingPetals({ count = 30, scrollY = 0 }: FloatingPetalsProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const { mouse } = useThree();
   
-  // Create custom petal geometry once
-  const petalGeo = useMemo(() => createPetalGeometry(), []);
+  const petalGeo = useMemo(() => createPetalShape(), []);
   
-  // Generate random petal data
-  const { positions, velocities, rotations, scales } = useMemo(() => {
+  const { positions, velocities, rotations, scales, colors } = useMemo(() => {
     const positions = new Float32Array(count * 3);
     const velocities = new Float32Array(count * 3);
     const rotations = new Float32Array(count * 3);
     const scales = new Float32Array(count);
+    const colors = new Float32Array(count * 3);
+    
+    const palette = [
+      new THREE.Color("#F8C7D9"), // blush
+      new THREE.Color("#FFB6C1"), // light pink
+      new THREE.Color("#E8B4BC"), // muted rose
+      new THREE.Color("#D4AF77").multiplyScalar(0.8), // gold tint
+      new THREE.Color("#FAF6F0"), // cream
+    ];
     
     for (let i = 0; i < count; i++) {
-      // Random position across the viewport
-      positions[i * 3] = (Math.random() - 0.5) * 20;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+      positions[i * 3] = (Math.random() - 0.5) * 16;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 12;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 6 - 2;
       
-      // Random velocities for natural movement
-      velocities[i * 3] = (Math.random() - 0.5) * 0.01;
-      velocities[i * 3 + 1] = Math.random() * 0.02 + 0.005; // fall down slowly
-      velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.005;
+      velocities[i * 3] = (Math.random() - 0.5) * 0.003;
+      velocities[i * 3 + 1] = -0.008 - Math.random() * 0.005;
+      velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.002;
       
-      // Random rotations
-      rotations[i * 3] = Math.random() * Math.PI * 2;
+      rotations[i * 3] = Math.random() * Math.PI;
       rotations[i * 3 + 1] = Math.random() * Math.PI * 2;
-      rotations[i * 3 + 2] = Math.random() * Math.PI * 2;
+      rotations[i * 3 + 2] = Math.random() * Math.PI;
       
-      // Random scales
-      scales[i] = Math.random() * 0.15 + 0.05;
+      scales[i] = 0.4 + Math.random() * 0.5;
+      
+      const c = palette[Math.floor(Math.random() * palette.length)];
+      colors[i * 3] = c.r;
+      colors[i * 3 + 1] = c.g;
+      colors[i * 3 + 2] = c.b;
     }
     
-    return { positions, velocities, rotations, scales };
+    return { positions, velocities, rotations, scales, colors };
   }, [count]);
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
+  const color = useMemo(() => new THREE.Color(), []);
   
   useFrame((state) => {
     if (!meshRef.current) return;
     
     const time = state.clock.getElapsedTime();
-    const mouseInfluence = 0.5;
     
     for (let i = 0; i < count; i++) {
-      // Update positions with gentle movement
-      positions[i * 3] += velocities[i * 3] + mouse.x * mouseInfluence * 0.001;
-      positions[i * 3 + 1] -= velocities[i * 3 + 1]; // fall down
+      // Gentle movement
+      positions[i * 3] += velocities[i * 3] + Math.sin(time * 0.3 + i * 0.5) * 0.002;
+      positions[i * 3 + 1] += velocities[i * 3 + 1];
       positions[i * 3 + 2] += velocities[i * 3 + 2];
       
-      // Scroll effect - petals move up as user scrolls
-      positions[i * 3 + 1] += scrollY * 0.0001;
+      // Mouse influence (subtle)
+      positions[i * 3] += mouse.x * 0.001;
+      positions[i * 3 + 2] += mouse.y * 0.0005;
       
-      // Add gentle wave motion
-      positions[i * 3] += Math.sin(time * 0.5 + i) * 0.002;
-      positions[i * 3 + 2] += Math.cos(time * 0.3 + i) * 0.001;
+      // Scroll effect
+      positions[i * 3 + 1] += scrollY * 0.00005;
       
-      // Reset petals that fall below or go too far
-      if (positions[i * 3 + 1] < -10) {
-        positions[i * 3 + 1] = 10;
-        positions[i * 3] = (Math.random() - 0.5) * 20;
+      // Reset when falling below
+      if (positions[i * 3 + 1] < -8) {
+        positions[i * 3 + 1] = 8;
+        positions[i * 3] = (Math.random() - 0.5) * 16;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 6 - 2;
       }
       
-      // Update dummy object
-      dummy.position.set(
-        positions[i * 3],
-        positions[i * 3 + 1],
-        positions[i * 3 + 2]
-      );
-      
-      // Gentle rotation
+      dummy.position.set(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]);
       dummy.rotation.set(
-        Math.sin(time + i) * 0.5,
-        Math.cos(time * 0.7 + i) * 0.5,
-        rotations[i * 3 + 2] + time * 0.1
+        rotations[i * 3] + time * 0.2,
+        rotations[i * 3 + 1] + time * 0.15,
+        rotations[i * 3 + 2]
       );
-      
       dummy.scale.setScalar(scales[i]);
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);
+      
+      // Set color
+      color.setRGB(
+        colors[i * 3],
+        colors[i * 3 + 1],
+        colors[i * 3 + 2]
+      );
+      meshRef.current.setColorAt(i, color);
     }
     
     meshRef.current.instanceMatrix.needsUpdate = true;
+    if (meshRef.current.instanceColor) {
+      meshRef.current.instanceColor.needsUpdate = true;
+    }
   });
 
   return (
     <instancedMesh ref={meshRef} args={[petalGeo, undefined, count]}>
       <meshBasicMaterial 
-        color={color} 
+        vertexColors
         transparent 
-        opacity={0.7} 
+        opacity={0.85} 
         side={THREE.DoubleSide}
       />
     </instancedMesh>

@@ -1,0 +1,170 @@
+@import "tailwindcss";
+
+/* Tailwind v4 CSS-based configuration */
+@theme {
+  /* Custom Colors */
+  --color-cream: #FAF6F0;
+  --color-rolex: #006039;
+  --color-rolex-dark: #003D24;
+  --color-blush: #F8C7D9;
+  --color-vibrant-pink: #E85D9E;
+  --color-light-pink: #FFB6C1;
+  --color-gold: #D4AF77;
+
+  /* Custom Fonts */
+  --font-serif: var(--font-playfair), serif;
+  --font-sans: var(--font-lato), sans-serif;
+
+  /* Custom Animations */
+  --animate-float-slow: float 6s ease-in-out infinite;
+  --animate-bloom: bloom 2s ease-out forwards;
+  --animate-shimmer: shimmer 2s linear infinite;
+}
+
+/* Keyframes */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes bloom {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    backgroundPosition: -200% 0;
+  }
+  100% {
+    backgroundPosition: 200% 0;
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-cream text-rolex-dark;
+    font-family: var(--font-sans);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #FAF6F0;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #006039, #F8C7D9);
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, #003D24, #E85D9E);
+  }
+}
+
+@layer utilities {
+  /* Glass effect */
+  .glass {
+    @apply bg-white/30 backdrop-blur-md border border-white/50;
+  }
+  
+  /* Text gradient */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-rolex to-vibrant-pink;
+  }
+  
+  /* Petal animation keyframes */
+  @keyframes petal-fall {
+    0% {
+      transform: translateY(-10vh) rotate(0deg) translateX(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(110vh) rotate(720deg) translateX(100px);
+      opacity: 0.3;
+    }
+  }
+  
+  .animate-petal-fall {
+    animation: petal-fall 10s linear infinite;
+  }
+  
+  /* Float animation */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  /* Glow effect */
+  .glow {
+    box-shadow: 0 0 20px rgba(248, 199, 217, 0.5);
+  }
+  
+  /* Shimmer effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+}
+
+/* Three.js Canvas fixes */
+.three-canvas {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Prevent layout shift from 3D canvas */
+canvas {
+  display: block;
+}
+
+/* Hide scrollbar for horizontal scroll areas */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Focus styles */
+*:focus-visible {
+  @apply outline-none ring-2 ring-vibrant-pink ring-offset-2;
+}
+
+/* Selection */
+::selection {
+  background: #F8C7D9;
+  color: #003D24;
+}
